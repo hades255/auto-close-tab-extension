@@ -35,3 +35,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // });
   }
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "getVariable") {
+    sendResponse({ CLOSE_TIME, SITE_URL });
+  }
+});

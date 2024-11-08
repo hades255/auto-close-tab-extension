@@ -10,3 +10,14 @@ document.getElementById("openButton").addEventListener("click", () => {
     // chrome.tabs.remove(newTab.id);
   });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  chrome.runtime.sendMessage({ action: "getVariable" }, (response) => {
+    if (response) {
+      if (response.SITE_URL)
+        document.getElementById("url").value = response.SITE_URL;
+      if (response.CLOSE_TIME)
+        document.getElementById("time").value = response.CLOSE_TIME;
+    }
+  });
+});
