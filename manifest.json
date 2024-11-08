@@ -3,7 +3,9 @@
     "name": "Close Specific URL",
     "version": "1.0",
     "permissions": [
-        "tabs"
+        "tabs",
+        "alarms",
+        "storage"
     ],
     "background": {
         "service_worker": "background.js"

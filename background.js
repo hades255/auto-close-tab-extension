@@ -1,22 +1,26 @@
 let RUN = false;
 let CLOSE_TIME = 12;
-let START_TIME = null;
 let SITE_URL = "upwork.com";
-let timer = null;
+let TIMER = null;
+let SECONDS = 0;
 
 function check() {
-  chrome.tabs.query({}, (tabs) => {
-    tabs.forEach((tab) => {
-      if (tab.url.includes(SITE_URL)) {
-        console.log(`Found tab with ID: ${tab.id} and URL: ${tab.url}`);
-        chrome.tabs.remove(tab.id);
-      }
+  if (SECONDS <= 0) {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+        if (tab.url.includes(SITE_URL)) {
+          console.log(`Found tab with ID: ${tab.id} and URL: ${tab.url}`);
+          chrome.tabs.remove(tab.id);
+        }
+      });
     });
-  });
-  RUN = false;
-  START_TIME = null;
-  clearTimeout(timer);
-  console.log("end timer");
+    RUN = false;
+    clearInterval(TIMER);
+    console.log("end timer");
+    return;
+  }
+  SECONDS--;
+  chrome.tabs.query({}, (tabs) => {});
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -27,41 +31,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (url) SITE_URL = url;
   }
   if (message.action === "getVariable") {
-    sendResponse({ CLOSE_TIME, SITE_URL, RUN, START_TIME });
+    sendResponse({ CLOSE_TIME, SECONDS, SITE_URL, RUN });
   }
   if (message.action === "runService") {
-    if (timer) clearTimeout(timer);
+    if (TIMER) clearInterval(TIMER);
     RUN = !RUN;
     if (RUN) {
-      timer = setTimeout(check, CLOSE_TIME * 60 * 1000);
+      SECONDS = CLOSE_TIME * 60;
+      TIMER = setInterval(check, 1000);
       console.log("start timer");
-      START_TIME = new Date();
-    } else {
-      START_TIME = null;
-    }
-    sendResponse({ RUN, CLOSE_TIME });
+    } else SECONDS = 0;
+
+    sendResponse({ RUN, SECONDS });
   }
 });
 
-/** precent service worker inactive */
-let intervalId;
-
 chrome.runtime.onInstalled.addListener(() => {
-  intervalId = setInterval(() => {
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach((tab) => {
-        console.log("onInstalled");
-      });
-    });
-  }, 30000);
+  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
 });
 
 chrome.runtime.onStartup.addListener(() => {
-  intervalId = setInterval(() => {
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach((tab) => {
-        console.log("onStartup");
-      });
-    });
-  }, 30000);
+  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "keepAlive") {
+    chrome.storage.local.set({ keepAlive: new Date().toISOString() });
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "keepAlive") {
+    console.log("Service worker is alive");
+  }
 });

@@ -7,12 +7,6 @@ function ensureUrlFormat(inputString) {
   }
 }
 
-function dateDiffInSeconds(date1, date2) {
-  const diffInTime = Math.abs(date2 - date1);
-  const diffInSeconds = Math.floor(diffInTime / 1000);
-  return diffInSeconds;
-}
-
 function displayTimerFunc(startTime) {
   let i = 0;
   let timer = null;
@@ -21,7 +15,9 @@ function displayTimerFunc(startTime) {
     if (startTime <= i) {
       stopDisplay();
       clearTimeout(timer);
-    } else document.getElementById("timer").innerText = startTime - i;
+      return;
+    }
+    document.getElementById("timer").innerText = startTime - i;
   }, 1000);
   document.getElementById("timer").innerText = startTime - i;
 }
@@ -49,7 +45,7 @@ document.getElementById("runButton").addEventListener("click", () => {
       if (response.RUN) {
         document.getElementById("title").innerText = "WORKING:";
         document.getElementById("runButton").innerText = "Stop";
-        if (response.CLOSE_TIME) displayTimerFunc(response.CLOSE_TIME * 60);
+        if (response.SECONDS) displayTimerFunc(response.SECONDS);
       } else stopDisplay();
     }
   });
@@ -65,14 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response && response.RUN) {
         document.getElementById("title").innerText = "WORKING:";
         document.getElementById("runButton").innerText = "Stop";
-        if (response.START_TIME) {
-          const diff = dateDiffInSeconds(
-            new Date(response.START_TIME),
-            new Date()
-          );
-          if (response.CLOSE_TIME)
-            displayTimerFunc(response.CLOSE_TIME * 60 - diff);
-        }
+        if (response.SECONDS) displayTimerFunc(response.SECONDS);
       } else stopDisplay();
     }
   });
