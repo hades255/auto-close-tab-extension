@@ -1,4 +1,4 @@
-let CLOSE_TIME = 11;
+let CLOSE_TIME = 12;
 let SITE_URL = "upwork.com";
 
 const checkTime = () => {
@@ -18,7 +18,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       setTimeout(timerFunc, 60000);
       if (checkTime()) chrome.tabs.remove(tabId);
     };
-    timerFunc();
+    setTimeout(timerFunc, 60000);
   }
 });
 

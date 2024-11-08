@@ -1,3 +1,12 @@
+function ensureUrlFormat(inputString) {
+  try {
+    new URL(inputString);
+    return inputString;
+  } catch (e) {
+    return `https://${encodeURIComponent(inputString)}.com`;
+  }
+}
+
 document.getElementById("closeButton").addEventListener("click", () => {
   const url = document.getElementById("url").value;
   const time = document.getElementById("time").value;
@@ -6,7 +15,7 @@ document.getElementById("closeButton").addEventListener("click", () => {
 
 document.getElementById("openButton").addEventListener("click", () => {
   const url = document.getElementById("url").value;
-  chrome.tabs.create({ url: url }, (newTab) => {
+  chrome.tabs.create({ url: ensureUrlFormat(url) }, (newTab) => {
     // chrome.tabs.remove(newTab.id);
   });
 });
