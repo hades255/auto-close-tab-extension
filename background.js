@@ -42,3 +42,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ RUN, CLOSE_TIME });
   }
 });
+
+/** precent service worker inactive */
+let intervalId;
+
+chrome.runtime.onInstalled.addListener(() => {
+  intervalId = setInterval(() => {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+        console.log("onInstalled");
+      });
+    });
+  }, 30000);
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  intervalId = setInterval(() => {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+        console.log("onStartup");
+      });
+    });
+  }, 30000);
+});
