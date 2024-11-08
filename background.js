@@ -1,26 +1,23 @@
+let RUN = false;
 let CLOSE_TIME = 12;
+let START_TIME = null;
 let SITE_URL = "upwork.com";
+let timer = null;
 
-const checkTime = () => {
-  const now = new Date();
-  const newYorkTime = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    hour: "2-digit",
-    hour12: false,
-  }).format(now);
-
-  return newYorkTime === CLOSE_TIME.toString();
-};
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.url && tab.url.includes(SITE_URL)) {
-    const timerFunc = () => {
-      setTimeout(timerFunc, 60000);
-      if (checkTime()) chrome.tabs.remove(tabId);
-    };
-    setTimeout(timerFunc, 60000);
-  }
-});
+function check() {
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach((tab) => {
+      if (tab.url.includes(SITE_URL)) {
+        console.log(`Found tab with ID: ${tab.id} and URL: ${tab.url}`);
+        chrome.tabs.remove(tab.id);
+      }
+    });
+  });
+  RUN = false;
+  START_TIME = null;
+  clearTimeout(timer);
+  console.log("end timer");
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "setTimer") {
@@ -28,16 +25,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (time) CLOSE_TIME = time;
     const url = message.url;
     if (url) SITE_URL = url;
-    // chrome.tabs.create({ url: url }, (newTab) => {
-    //   setTimeout(() => {
-    //     chrome.tabs.remove(newTab.id);
-    //   }, 60000); // Close the tab after 60 seconds
-    // });
   }
-});
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "getVariable") {
-    sendResponse({ CLOSE_TIME, SITE_URL });
+    sendResponse({ CLOSE_TIME, SITE_URL, RUN, START_TIME });
+  }
+  if (message.action === "runService") {
+    if (timer) clearTimeout(timer);
+    RUN = !RUN;
+    if (RUN) {
+      timer = setTimeout(check, CLOSE_TIME * 60 * 1000);
+      console.log("start timer");
+      START_TIME = new Date();
+    } else {
+      START_TIME = null;
+    }
+    sendResponse({ RUN, CLOSE_TIME });
   }
 });

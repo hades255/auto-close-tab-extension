@@ -3,7 +3,11 @@
   <head>
     <title>Close Specific URL</title>
   </head>
-  <body>
+  <body
+    style="
+      background-image: radial-gradient(circle at 90% 0%, #6bcfc3, #000807);
+    "
+  >
     <div
       style="
         width: 320px;
@@ -11,14 +15,19 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+        padding: 10px;
       "
     >
-      <h1 style="text-align: center">Close Specific URL</h1>
+      <h1 style="text-align: center; color: white">Close Specific URL</h1>
+      <div>
+        <span id="title" style="color: #6bcfc3"></span>
+        <span id="timer" style="color: #6bcfc3"></span>
+      </div>
       <input
         type="text"
         id="url"
         placeholder="Enter URL"
-        style="width: 300px; height: 24px; font-size: 16px"
+        style="width: full; height: 24px; font-size: 16px"
       />
       <input
         type="number"
@@ -27,11 +36,53 @@
         max="23"
         step="1"
         placeholder="Enter time"
-        style="width: 300px; height: 24px; font-size: 16px"
+        style="width: full; height: 24px; font-size: 16px"
       />
-      <div>
-        <button id="closeButton" style="padding: 8px;">Set time and url</button>
-        <button id="openButton" style="padding: 8px;">Open url</button>
+      <div style="width: full; display: flex; justify-content: space-between">
+        <div>
+          <button
+            id="closeButton"
+            style="
+              padding: 12px;
+              color: white;
+              background-color: #03a9f4;
+              border-radius: 2px;
+              outline: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            Set time and url
+          </button>
+          <button
+            id="openButton"
+            style="
+              padding: 12px;
+              color: white;
+              background-color: #03a9f4;
+              border-radius: 2px;
+              outline: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            Open url
+          </button>
+        </div>
+        <button
+          id="runButton"
+          style="
+            padding: 12px;
+            color: white;
+            background-color: #03a9f4;
+            border-radius: 2px;
+            outline: none;
+            border: none;
+            cursor: pointer;
+          "
+        >
+          Run
+        </button>
       </div>
       <script src="popup.js"></script>
     </div>
