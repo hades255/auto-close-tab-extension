@@ -1,12 +1,39 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>Close Specific URL</title>
   </head>
   <body>
-    <h1>Close Specific URL</h1>
-    <input type="text" id="url" placeholder="Enter URL">
-    <button id="closeButton">Close After Time</button>
-    <script src="popup.js"></script>
+    <div
+      style="
+        width: 320px;
+        min-width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      "
+    >
+      <h1 style="text-align: center">Close Specific URL</h1>
+      <input
+        type="text"
+        id="url"
+        placeholder="Enter URL"
+        style="width: 300px; height: 24px; font-size: 16px"
+      />
+      <input
+        type="number"
+        id="time"
+        min="0"
+        max="23"
+        step="1"
+        placeholder="Enter time"
+        style="width: 300px; height: 24px; font-size: 16px"
+      />
+      <div>
+        <button id="closeButton" style="padding: 8px;">Set time and url</button>
+        <button id="openButton" style="padding: 8px;">Open url</button>
+      </div>
+      <script src="popup.js"></script>
+    </div>
   </body>
 </html>
