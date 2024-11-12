@@ -1,62 +1,83 @@
-let RUN = false;
-let CLOSE_TIME = 12;
-let SITE_URL = "upwork.com";
-let TIMER = null;
-let SECONDS = 0;
+let RUN = true;
+let CLOSE_TIME = 0;
+let SITE_URL = "google";
 
-function check() {
-  if (SECONDS <= 0) {
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach((tab) => {
-        if (tab.url.includes(SITE_URL)) {
-          console.log(`Found tab with ID: ${tab.id} and URL: ${tab.url}`);
-          chrome.tabs.remove(tab.id);
-        }
-      });
+const set_CLOSE_TIME = (param) => (CLOSE_TIME = param);
+const set_SITE_URL = (param) => (SITE_URL = param);
+const set_RUN = (param) => (RUN = param);
+
+function check_() {
+  if (!RUN) return;
+  const now = new Date();
+  const hour = now.getHours();
+  if (Number(hour) !== Number(CLOSE_TIME)) return;
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach((tab) => {
+      if (tab.url.includes(SITE_URL)) {
+        console.log(`Found tab with ID: ${tab.id} and URL: ${tab.url}`);
+        chrome.tabs.remove(tab.id);
+      }
     });
-    RUN = false;
-    clearInterval(TIMER);
-    console.log("end timer");
-    return;
-  }
-  SECONDS--;
-  chrome.tabs.query({}, (tabs) => {});
+  });
+}
+
+async function initVariables() {
+  console.log(Date.now());
+  await chrome.storage.sync.get(["CLOSE_TIME"]).then(({ CLOSE_TIME }) => {
+    console.log("init CLOSE_TIME", CLOSE_TIME || 0);
+    set_CLOSE_TIME(CLOSE_TIME || 0);
+  });
+  await chrome.storage.sync.get(["SITE_URL"]).then(({ SITE_URL }) => {
+    console.log("init SITE_URL", SITE_URL || "google");
+    set_SITE_URL(SITE_URL || "google");
+  });
+  await chrome.storage.sync.get(["RUN"]).then(({ RUN }) => {
+    console.log("init RUN", RUN || false);
+    set_RUN(RUN || false);
+  });
+  console.log(Date.now());
+}
+
+function init() {
+  chrome.alarms.create("keepAlive", { periodInMinutes: 10 });
+  initVariables();
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "server?") {
+    initVariables();
+  }
   if (message.action === "setTimer") {
     const time = message.time;
     if (time) CLOSE_TIME = time;
     const url = message.url;
     if (url) SITE_URL = url;
+    chrome.storage.sync.set({ CLOSE_TIME, SITE_URL, RUN });
   }
   if (message.action === "getVariable") {
-    sendResponse({ CLOSE_TIME, SECONDS, SITE_URL, RUN });
+    sendResponse({ CLOSE_TIME, SITE_URL, RUN });
   }
   if (message.action === "runService") {
-    if (TIMER) clearInterval(TIMER);
-    RUN = !RUN;
-    if (RUN) {
-      SECONDS = CLOSE_TIME * 60;
-      TIMER = setInterval(check, 1000);
-      console.log("start timer");
-    } else SECONDS = 0;
-
-    sendResponse({ RUN, SECONDS });
+    console.log("start timer");
+    set_RUN(!RUN);
+    chrome.storage.sync.set({ CLOSE_TIME, SITE_URL, RUN });
+    sendResponse({ RUN });
   }
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
+  init();
 });
 
-chrome.runtime.onStartup.addListener(() => {
-  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
-});
+chrome.runtime.onStartup.addListener(() => {});
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "keepAlive") {
-    chrome.storage.local.set({ keepAlive: new Date().toISOString() });
+    console.log("60 min alarm listener");
+    (async () => {
+      await initVariables();
+      if (RUN) check_();
+    })();
   }
 });
 
