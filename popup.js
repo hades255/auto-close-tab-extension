@@ -1,3 +1,5 @@
+let timer = null;
+
 function ensureUrlFormat(inputString) {
   try {
     new URL(inputString);
@@ -9,12 +11,10 @@ function ensureUrlFormat(inputString) {
 
 function displayTimerFunc(startTime) {
   let i = 0;
-  let timer = null;
   timer = setInterval(() => {
     i++;
     if (startTime <= i) {
       stopDisplay();
-      clearTimeout(timer);
       return;
     }
     document.getElementById("timer").innerText = startTime - i;
@@ -23,6 +23,7 @@ function displayTimerFunc(startTime) {
 }
 
 function stopDisplay() {
+  if (timer) clearInterval(timer);
   document.getElementById("title").innerText = "STOPED";
   document.getElementById("timer").innerText = "";
   document.getElementById("runButton").innerText = "Run";
