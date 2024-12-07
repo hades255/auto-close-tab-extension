@@ -2,9 +2,19 @@ let RUN = true;
 let CLOSE_TIME = 0;
 let SITE_URL = "google";
 
+let REFRESH_RUN = false;
+let REFRESH_SITE_URL =
+  "https://www.upwork.com/nx/search/jobs/?nbs=1&payment_verified=1&per_page=50&proposals=0-4,5-9,10-14&sort=recency&page=1";
+let REFRESH_PERIOD = 60;
+let REFRESH_TIMER = null;
+
 const set_CLOSE_TIME = (param) => (CLOSE_TIME = param);
 const set_SITE_URL = (param) => (SITE_URL = param);
 const set_RUN = (param) => (RUN = param);
+
+const set_REFRESH_RUN = (param) => (REFRESH_RUN = param);
+const set_REFRESH_SITE_URL = (param) => (REFRESH_SITE_URL = param);
+const set_REFRESH_PERIOD = (param) => (REFRESH_PERIOD = param);
 
 function check_() {
   if (!RUN) return;
@@ -22,21 +32,55 @@ function check_() {
 }
 
 async function initVariables() {
-  console.log(Date.now());
   await chrome.storage.sync.get(["CLOSE_TIME"]).then(({ CLOSE_TIME }) => {
-    console.log("init CLOSE_TIME", CLOSE_TIME || 0);
     set_CLOSE_TIME(CLOSE_TIME || 0);
   });
   await chrome.storage.sync.get(["SITE_URL"]).then(({ SITE_URL }) => {
-    console.log("init SITE_URL", SITE_URL || "google");
     set_SITE_URL(SITE_URL || "google");
   });
   await chrome.storage.sync.get(["RUN"]).then(({ RUN }) => {
-    console.log("init RUN", RUN || false);
     set_RUN(RUN || false);
   });
-  console.log(Date.now());
+  await chrome.storage.sync.get(["RUN"]).then(({ REFRESH_RUN }) => {
+    set_REFRESH_RUN(REFRESH_RUN || false);
+  });
+  await chrome.storage.sync.get(["RUN"]).then(({ REFRESH_SITE_URL }) => {
+    set_REFRESH_SITE_URL(
+      REFRESH_SITE_URL ||
+        "https://www.upwork.com/nx/search/jobs/?nbs=1&payment_verified=1&per_page=50&proposals=0-4,5-9,10-14&sort=recency&page=1"
+    );
+  });
 }
+const refreshOrOpenUrl = () => {
+  const formattedUrl = REFRESH_SITE_URL;
+
+  chrome.tabs.query({}, function (tabs) {
+    let tabFound = false;
+
+    for (let tab of tabs) {
+      if (tab.url.includes(formattedUrl)) {
+        tabFound = true;
+
+        chrome.tabs.reload(tab.id);
+
+        REFRESH_TIMER = setInterval(() => {
+          console.log("timer");
+          chrome.tabs.reload(tab.id);
+        }, REFRESH_PERIOD * 1000);
+        break;
+      }
+    }
+
+    if (!tabFound) {
+      chrome.tabs.create({ url: formattedUrl }, (newTab) => {
+        REFRESH_TIMER = setInterval(() => {
+          console.log("timer");
+          chrome.tabs.reload(newTab.id);
+        }, REFRESH_PERIOD * 1000);
+      });
+    }
+  });
+};
 
 function init() {
   chrome.alarms.create("keepAlive", { periodInMinutes: 10 });
@@ -55,13 +99,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     chrome.storage.sync.set({ CLOSE_TIME, SITE_URL, RUN });
   }
   if (message.action === "getVariable") {
-    sendResponse({ CLOSE_TIME, SITE_URL, RUN });
+    sendResponse({
+      CLOSE_TIME,
+      SITE_URL,
+      RUN,
+      REFRESH_RUN,
+      REFRESH_SITE_URL,
+      REFRESH_PERIOD,
+    });
   }
   if (message.action === "runService") {
     console.log("start timer");
     set_RUN(!RUN);
     chrome.storage.sync.set({ CLOSE_TIME, SITE_URL, RUN });
     sendResponse({ RUN });
+  }
+  if (message.action === "getREFRESH_SITE_URL") {
+    sendResponse({ REFRESH_SITE_URL });
+  }
+  if (message.action === "refreshRun") {
+    if (message.url && message.period) {
+      if (REFRESH_TIMER) clearInterval(REFRESH_TIMER);
+      set_REFRESH_RUN(!REFRESH_RUN);
+      set_REFRESH_SITE_URL(message.url);
+      set_REFRESH_PERIOD(message.period);
+      chrome.storage.sync.set({
+        REFRESH_RUN,
+        REFRESH_SITE_URL,
+        REFRESH_PERIOD,
+      });
+      sendResponse({ REFRESH_RUN });
+      if (REFRESH_RUN) {
+        refreshOrOpenUrl();
+      }
+    }
   }
 });
 

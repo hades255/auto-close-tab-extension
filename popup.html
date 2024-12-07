@@ -18,7 +18,13 @@
         padding: 10px;
       "
     >
-      <h1 style="text-align: center; color: white">Close Specific URL</h1>
+      <div style="display: flex; justify-content: center">
+        <img
+          src="https://iconape.com/wp-content/files/jw/371598/svg/371598.svg"
+          alt="upwork"
+          width="180"
+        />
+      </div>
       <div>
         <span id="title" style="color: #6bcfc3"></span>
         <span id="timer" style="color: #6bcfc3"></span>
@@ -86,6 +92,35 @@
         >
           Run
         </button>
+      </div>
+      <hr width="100%" />
+      <div>
+        <textarea style="width: 100%" rows="3" id="refreshSiteUrl"></textarea>
+        <div style="display: flex; justify-content: space-between">
+          <div>
+            <input
+              type="number"
+              placeholder="Refreshing period"
+              id="refreshPeriod"
+              style="width: 80px; height: 24px; font-size: 16px"
+            />
+            <span style="color: white">Seconds</span>
+          </div>
+          <button
+            id="refreshRun"
+            style="
+              padding: 12px;
+              color: white;
+              background-color: #03a9f4;
+              border-radius: 2px;
+              outline: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            RUN
+          </button>
+        </div>
       </div>
       <script src="popup.js"></script>
     </div>

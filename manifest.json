@@ -1,6 +1,7 @@
 {
     "manifest_version": 3,
-    "name": "Close Specific URL",
+    "name": "Upwork",
+    "description": "Close Specific URL at specific time & refresh specific page in specific period",
     "version": "1.0",
     "permissions": [
         "tabs",
@@ -13,9 +14,11 @@
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
-            "16": "images/icon.png",
-            "48": "images/icon.png",
-            "128": "images/icon.png"
+            "16": "images/upwork.png",
+            "48": "images/upwork.png",
+            "64": "images/upwork.png",
+            "128": "images/upwork.png",
+            "256": "images/upwork.png"
         }
     }
 }

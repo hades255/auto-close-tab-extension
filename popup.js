@@ -50,10 +50,26 @@ document.getElementById("runButton").addEventListener("click", () => {
       if (response.RUN) {
         document.getElementById("title").innerText = "WORKING";
         document.getElementById("runButton").innerText = "Stop";
-        // if (response.SECONDS) displayTimerFunc(response.SECONDS);
       } else stopDisplay();
     }
   });
+});
+
+document.getElementById("refreshRun").addEventListener("click", () => {
+  const url = document.getElementById("refreshSiteUrl").value;
+  const period = document.getElementById("refreshPeriod").value;
+  if (url && period) {
+    chrome.runtime.sendMessage(
+      { action: "refreshRun", url, period },
+      (response) => {
+        if (response) {
+          document.getElementById("refreshRun").innerText = response.REFRESH_RUN
+            ? "STOP"
+            : "RUN";
+        }
+      }
+    );
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -61,14 +77,24 @@ document.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     chrome.runtime.sendMessage({ action: "getVariable" }, (response) => {
       if (response) {
+        console.log(response);
         if (response.SITE_URL)
           document.getElementById("url").value = response.SITE_URL;
-        if (response.CLOSE_TIME)
+        if (response.CLOSE_TIME >= 0)
           document.getElementById("time").value = response.CLOSE_TIME;
+        if (response.REFRESH_RUN)
+          document.getElementById("refreshRun").innerText = response.REFRESH_RUN
+            ? "STOP"
+            : "RUN";
+        if (response.REFRESH_SITE_URL)
+          document.getElementById("refreshSiteUrl").value =
+            response.REFRESH_SITE_URL;
+        if (response.REFRESH_PERIOD >= 0)
+          document.getElementById("refreshPeriod").value =
+            response.REFRESH_PERIOD;
         if (response && response.RUN) {
           document.getElementById("title").innerText = "WORKING";
           document.getElementById("runButton").innerText = "Stop";
-          // if (response.SECONDS) displayTimerFunc(response.SECONDS);
         } else stopDisplay();
       }
     });
