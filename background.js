@@ -41,15 +41,17 @@ async function initVariables() {
   await chrome.storage.sync.get(["RUN"]).then(({ RUN }) => {
     set_RUN(RUN || false);
   });
-  await chrome.storage.sync.get(["RUN"]).then(({ REFRESH_RUN }) => {
+  await chrome.storage.sync.get(["REFRESH_RUN"]).then(({ REFRESH_RUN }) => {
     set_REFRESH_RUN(REFRESH_RUN || false);
   });
-  await chrome.storage.sync.get(["RUN"]).then(({ REFRESH_SITE_URL }) => {
-    set_REFRESH_SITE_URL(
-      REFRESH_SITE_URL ||
-        "https://www.upwork.com/nx/search/jobs/?nbs=1&payment_verified=1&per_page=50&proposals=0-4,5-9,10-14&sort=recency&page=1"
-    );
-  });
+  await chrome.storage.sync
+    .get(["REFRESH_SITE_URL"])
+    .then(({ REFRESH_SITE_URL }) => {
+      set_REFRESH_SITE_URL(
+        REFRESH_SITE_URL ||
+          "https://www.upwork.com/nx/search/jobs/?nbs=1&payment_verified=1&per_page=50&proposals=0-4,5-9,10-14&sort=recency&page=1"
+      );
+    });
 }
 const refreshOrOpenUrl = () => {
   const formattedUrl = REFRESH_SITE_URL;
@@ -130,7 +132,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       sendResponse({ REFRESH_RUN });
       if (REFRESH_RUN) {
-        refreshOrOpenUrl();
+        setTimeout(() => {
+          refreshOrOpenUrl();
+        }, 2000);
       }
     }
   }
