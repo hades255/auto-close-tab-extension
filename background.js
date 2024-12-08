@@ -88,10 +88,34 @@ const refreshOrOpenUrl = () => {
   });
 };
 
-function init() {
-  chrome.alarms.create("keepAlive", { periodInMinutes: 30 });
-  initVariables();
+async function init() {
+  console.log("init");
+  await initVariables();
   updateIcon();
+  chrome.alarms.get("keepAlive", (alarm) => {
+    if (alarm) {
+      console.log("Alarm 'keepAlive' is running.");
+      console.log("Next scheduled time:", new Date(alarm.scheduledTime));
+    } else {
+      console.log("Alarm 'keepAlive' is not running.");
+      chrome.alarms.create("keepAlive", { periodInMinutes: 30 });
+    }
+  });
+  chrome.alarms.get("refresh-site", (alarm) => {
+    if (alarm) {
+      console.log("Alarm 'refresh-site' is running.");
+      console.log("Next scheduled time:", new Date(alarm.scheduledTime));
+    } else {
+      console.log("Alarm 'refresh-site' is not running.");
+      if (REFRESH_RUN) {
+        chrome.alarms.create("refresh-site", {
+          periodInMinutes: Number(REFRESH_PERIOD),
+        });
+        updateIcon();
+        refreshOrOpenUrl();
+      }
+    }
+  });
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
