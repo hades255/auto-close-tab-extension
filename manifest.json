@@ -3,22 +3,24 @@
     "name": "Upwork",
     "description": "Close Specific URL at specific time & refresh specific page in specific period",
     "version": "1.0",
+    "icons": {
+        "16": "images/upwork.png",
+        "48": "images/upwork.png",
+        "64": "images/upwork.png",
+        "128": "images/upwork.png",
+        "256": "images/upwork.png"
+    },
     "permissions": [
         "tabs",
         "alarms",
-        "storage"
+        "storage",
+        "activeTab"
     ],
     "background": {
         "service_worker": "background.js"
     },
     "action": {
         "default_popup": "popup.html",
-        "default_icon": {
-            "16": "images/upwork.png",
-            "48": "images/upwork.png",
-            "64": "images/upwork.png",
-            "128": "images/upwork.png",
-            "256": "images/upwork.png"
-        }
+        "default_icon": "images/upwork.png"
     }
 }

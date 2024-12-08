@@ -5,7 +5,7 @@ let SITE_URL = "google";
 let REFRESH_RUN = false;
 let REFRESH_SITE_URL =
   "https://www.upwork.com/nx/search/jobs/?nbs=1&payment_verified=1&per_page=50&proposals=0-4,5-9,10-14&sort=recency&page=1";
-let REFRESH_PERIOD = 60;
+let REFRESH_PERIOD = 1;
 let REFRESH_TIMER = null;
 
 const set_CLOSE_TIME = (param) => (CLOSE_TIME = param);
@@ -15,6 +15,27 @@ const set_RUN = (param) => (RUN = param);
 const set_REFRESH_RUN = (param) => (REFRESH_RUN = param);
 const set_REFRESH_SITE_URL = (param) => (REFRESH_SITE_URL = param);
 const set_REFRESH_PERIOD = (param) => (REFRESH_PERIOD = param);
+
+const updateIcon = () => {
+  let icon = "icon";
+  if (REFRESH_RUN) {
+    icon = "refreshing";
+  }
+  return;
+
+  chrome.action.setIcon(
+    {
+      path: `images/${icon}.png`,
+    },
+    () => {
+      if (chrome.runtime) {
+        console.error(chrome.runtime);
+      } else {
+        console.log("Icon updated successfully.");
+      }
+    }
+  );
+};
 
 function check_() {
   if (!RUN) return;
@@ -55,34 +76,22 @@ async function initVariables() {
 }
 const refreshOrOpenUrl = () => {
   const formattedUrl = REFRESH_SITE_URL;
-
-  const timerFunc = () => {
-    chrome.tabs.query({}, function (tabs) {
-      // let tabFound = false;
-
-      for (let tab of tabs) {
-        if (tab.url.includes(formattedUrl)) {
-          // tabFound = true;
-          // chrome.tabs.reload(tab.id);
-          chrome.tabs.remove(tab.id);
-          break;
-        }
+  chrome.tabs.query({}, function (tabs) {
+    for (let tab of tabs) {
+      if (tab.url.includes(formattedUrl)) {
+        chrome.tabs.remove(tab.id);
+        break;
       }
+    }
 
-      // if (!tabFound) {
-      chrome.tabs.create({ url: formattedUrl }, (newTab) => {});
-      // }
-    });
-  };
-
-  timerFunc();
-  if (REFRESH_TIMER) clearInterval(REFRESH_TIMER);
-  REFRESH_TIMER = setInterval(timerFunc, REFRESH_PERIOD * 1000);
+    chrome.tabs.create({ url: formattedUrl }, (newTab) => {});
+  });
 };
 
 function init() {
-  chrome.alarms.create("keepAlive", { periodInMinutes: 10 });
+  chrome.alarms.create("keepAlive", { periodInMinutes: 30 });
   initVariables();
+  updateIcon();
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -117,7 +126,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   if (message.action === "refreshRun") {
     if (message.url && message.period) {
-      if (REFRESH_TIMER) clearInterval(REFRESH_TIMER);
       set_REFRESH_RUN(!REFRESH_RUN);
       set_REFRESH_SITE_URL(message.url);
       set_REFRESH_PERIOD(message.period);
@@ -127,11 +135,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         REFRESH_PERIOD,
       });
       sendResponse({ REFRESH_RUN });
-      if (REFRESH_RUN) {
-        setTimeout(() => {
+      chrome.alarms.clear("refresh-site", () => {
+        if (REFRESH_RUN) {
+          chrome.alarms.create("refresh-site", {
+            periodInMinutes: Number(REFRESH_PERIOD),
+          });
+          updateIcon();
           refreshOrOpenUrl();
-        }, 2000);
-      }
+        }
+      });
     }
   }
 });
@@ -148,6 +160,12 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     (async () => {
       await initVariables();
       if (RUN) check_();
+    })();
+  }
+  if (alarm.name === "refresh-site") {
+    (async () => {
+      await initVariables();
+      if (REFRESH_RUN) refreshOrOpenUrl();
     })();
   }
 });
