@@ -56,32 +56,28 @@ async function initVariables() {
 const refreshOrOpenUrl = () => {
   const formattedUrl = REFRESH_SITE_URL;
 
-  chrome.tabs.query({}, function (tabs) {
-    let tabFound = false;
+  const timerFunc = () => {
+    chrome.tabs.query({}, function (tabs) {
+      // let tabFound = false;
 
-    for (let tab of tabs) {
-      if (tab.url.includes(formattedUrl)) {
-        tabFound = true;
-
-        chrome.tabs.reload(tab.id);
-
-        REFRESH_TIMER = setInterval(() => {
-          console.log("timer");
-          chrome.tabs.reload(tab.id);
-        }, REFRESH_PERIOD * 1000);
-        break;
+      for (let tab of tabs) {
+        if (tab.url.includes(formattedUrl)) {
+          // tabFound = true;
+          // chrome.tabs.reload(tab.id);
+          chrome.tabs.remove(tab.id);
+          break;
+        }
       }
-    }
 
-    if (!tabFound) {
-      chrome.tabs.create({ url: formattedUrl }, (newTab) => {
-        REFRESH_TIMER = setInterval(() => {
-          console.log("timer");
-          chrome.tabs.reload(newTab.id);
-        }, REFRESH_PERIOD * 1000);
-      });
-    }
-  });
+      // if (!tabFound) {
+      chrome.tabs.create({ url: formattedUrl }, (newTab) => {});
+      // }
+    });
+  };
+
+  timerFunc();
+  if (REFRESH_TIMER) clearInterval(REFRESH_TIMER);
+  REFRESH_TIMER = setInterval(timerFunc, REFRESH_PERIOD * 1000);
 };
 
 function init() {
