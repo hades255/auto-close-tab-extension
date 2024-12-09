@@ -22,5 +22,6 @@
     "action": {
         "default_popup": "popup.html",
         "default_icon": "images/upwork.png"
-    }
+    },
+    "host_permissions": ["http://*/*", "https://*/*"]
 }

@@ -50,7 +50,17 @@ document.getElementById("runButton").addEventListener("click", () => {
       if (response.RUN) {
         document.getElementById("title").innerText = "WORKING";
         document.getElementById("runButton").innerText = "Stop";
-      } else stopDisplay();
+        document.getElementById("url").disabled = true;
+        document.getElementById("time").disabled = true;
+        document.getElementById("closeButton").disabled = true;
+        document.getElementById("openButton").disabled = true;
+      } else {
+        stopDisplay();
+        document.getElementById("url").disabled = false;
+        document.getElementById("time").disabled = false;
+        document.getElementById("closeButton").disabled = false;
+        document.getElementById("openButton").disabled = false;
+      }
     }
   });
 });
@@ -66,6 +76,13 @@ document.getElementById("refreshRun").addEventListener("click", () => {
           document.getElementById("refreshRun").innerText = response.REFRESH_RUN
             ? "STOP"
             : "RUN";
+          if (response.REFRESH_RUN) {
+            document.getElementById("refreshSiteUrl").disabled = true;
+            document.getElementById("refreshPeriod").disabled = true;
+          } else {
+            document.getElementById("refreshSiteUrl").disabled = false;
+            document.getElementById("refreshPeriod").disabled = false;
+          }
         }
       }
     );
@@ -82,19 +99,22 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("url").value = response.SITE_URL;
         if (response.CLOSE_TIME >= 0)
           document.getElementById("time").value = response.CLOSE_TIME;
-        if (response.REFRESH_RUN)
-          document.getElementById("refreshRun").innerText = response.REFRESH_RUN
-            ? "STOP"
-            : "RUN";
+        if (response.REFRESH_RUN) {
+          document.getElementById("refreshRun").innerText = "STOP";
+          document.getElementById("refreshSiteUrl").disabled = true;
+          document.getElementById("refreshPeriod").disabled = true;
+        }
         if (response.REFRESH_SITE_URL)
           document.getElementById("refreshSiteUrl").value =
             response.REFRESH_SITE_URL;
         if (response.REFRESH_PERIOD >= 0)
           document.getElementById("refreshPeriod").value =
             response.REFRESH_PERIOD;
-        if (response && response.RUN) {
+        if (response.RUN) {
           document.getElementById("title").innerText = "WORKING";
           document.getElementById("runButton").innerText = "Stop";
+          document.getElementById("url").disabled = true;
+          document.getElementById("time").disabled = true;
         } else stopDisplay();
       }
     });
