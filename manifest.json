@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Upwork",
     "description": "Close Specific URL at specific time & refresh specific page in specific period",
-    "version": "1.0",
+    "version": "1.2",
     "icons": {
         "16": "images/upwork.png",
         "48": "images/upwork.png",

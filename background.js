@@ -1,6 +1,6 @@
 let RUN = true;
 let CLOSE_TIME = 0;
-let SITE_URL = "google";
+let SITE_URL = "upwork.com";
 
 let REFRESH_RUN = false;
 let REFRESH_SITE_URL =
