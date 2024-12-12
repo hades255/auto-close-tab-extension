@@ -97,17 +97,14 @@
       <div>
         <div style="width: 100%; background-color: white">
           <textarea
-            style="
-              width: 100%;
-              border: none;
-              padding: 0;
-              outline: none;
-            "
+            style="width: 100%; border: none; padding: 0; outline: none"
             rows="3"
             id="refreshSiteUrl"
           ></textarea>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+        <div
+          style="display: flex; justify-content: space-between; margin-top: 4px"
+        >
           <div>
             <input
               type="number"
@@ -116,6 +113,10 @@
               style="width: 80px; height: 24px; font-size: 16px"
             />
             <span style="color: white">min</span>
+            <span
+              style="color: white; margin-left: 2px; margin-right: 2px"
+              id="nextRefresh"
+            ></span>
           </div>
           <button
             id="refreshRun"

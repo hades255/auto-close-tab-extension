@@ -16,6 +16,7 @@ const set_RUN = (param) => (RUN = param);
 const set_REFRESH_RUN = (param) => (REFRESH_RUN = param);
 const set_REFRESH_SITE_URL = (param) => (REFRESH_SITE_URL = param);
 const set_REFRESH_PERIOD = (param) => (REFRESH_PERIOD = param);
+const set_REFRESHED_TIME = (param) => (REFRESHED_TIME = param);
 
 const draw = (ctx, color = "#000", text = "#FFF") => {
   ctx.save();
@@ -255,6 +256,8 @@ async function init() {
     if (alarm) {
       if (!REFRESH_RUN) {
         chrome.alarms.clear("refresh-site");
+      } else {
+        set_REFRESHED_TIME(alarm.scheduledTime);
       }
     } else {
       if (REFRESH_RUN) {
@@ -271,6 +274,12 @@ async function init() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "server?") {
     initVariables();
+    chrome.alarms.get("refresh-site", (alarm) => {
+      if (alarm) {
+        console.log(alarm.scheduledTime);
+        set_REFRESHED_TIME(alarm.scheduledTime);
+      }
+    });
   }
   if (message.action === "setTimer") {
     const time = message.time;
@@ -287,6 +296,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       REFRESH_RUN,
       REFRESH_SITE_URL,
       REFRESH_PERIOD,
+      REFRESHED_TIME,
     });
   }
   if (message.action === "runService") {
@@ -323,9 +333,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-chrome.runtime.onInstalled.addListener(() => {
-  init();
-});
+chrome.runtime.onInstalled.addListener(init);
 
 chrome.runtime.onStartup.addListener(() => {});
 

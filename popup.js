@@ -9,21 +9,35 @@ function ensureUrlFormat(inputString) {
   }
 }
 
+function clearRefreshTimer() {
+  if (timer) clearInterval(timer);
+  document.getElementById("nextRefresh").innerText = "";
+}
+
+function showRefreshTimer(i) {
+  document.getElementById("nextRefresh").innerText =
+    (Math.floor(i / 60) >= 10 ? "" : "0") +
+    Math.floor(i / 60) +
+    " : " +
+    (i % 60 >= 10 ? "" : "0") +
+    (i % 60);
+}
+
 function displayTimerFunc(startTime) {
-  let i = 0;
+  let i = startTime;
+  showRefreshTimer(i);
   timer = setInterval(() => {
-    i++;
-    if (startTime <= i) {
-      stopDisplay();
+    console.log(i);
+    i--;
+    showRefreshTimer(i);
+    if (i === 0) {
+      clearRefreshTimer();
       return;
     }
-    document.getElementById("timer").innerText = startTime - i;
   }, 1000);
-  document.getElementById("timer").innerText = startTime - i;
 }
 
 function stopDisplay() {
-  if (timer) clearInterval(timer);
   document.getElementById("title").innerText = "STOPED";
   document.getElementById("timer").innerText = "";
   document.getElementById("runButton").innerText = "Run";
@@ -74,6 +88,8 @@ document.getElementById("refreshRun").addEventListener("click", () => {
             response.REFRESH_RUN;
           document.getElementById("refreshPeriod").disabled =
             response.REFRESH_RUN;
+          if (response.REFRESH_RUN) displayTimerFunc(period * 60);
+          else clearRefreshTimer();
         }
       }
     );
@@ -94,6 +110,11 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("refreshRun").innerText = "STOP";
           document.getElementById("refreshSiteUrl").disabled = true;
           document.getElementById("refreshPeriod").disabled = true;
+          if (response.REFRESHED_TIME) {
+            displayTimerFunc(
+              Math.round((response.REFRESHED_TIME - Date.now()) / 1000)
+            );
+          }
         }
         if (response.REFRESH_SITE_URL)
           document.getElementById("refreshSiteUrl").value =
