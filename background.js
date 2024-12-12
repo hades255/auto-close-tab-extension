@@ -7,6 +7,7 @@ let REFRESH_SITE_URL =
   "https://www.upwork.com/nx/search/jobs/?nbs=1&payment_verified=1&per_page=50&proposals=0-4,5-9,10-14&sort=recency&page=1";
 let REFRESH_PERIOD = 1;
 let REFRESH_TIMER = null;
+let REFRESHED_TIME = null;
 
 const set_CLOSE_TIME = (param) => (CLOSE_TIME = param);
 const set_SITE_URL = (param) => (SITE_URL = param);
@@ -169,7 +170,7 @@ const draw = (ctx, color = "#000", text = "#FFF") => {
 const updateIcon = () => {
   const canvas = new OffscreenCanvas(48, 48);
   const context = canvas.getContext("2d");
-  draw(context, REFRESH_RUN ? "#F7931E" : "#6FDA44", RUN ? "#00F" : "#FFF");
+  draw(context, REFRESH_RUN ? "#F7931E" : "#6FDA44", RUN ? "#0F0" : "#FFF");
   const imageData = context.getImageData(0, 0, 48, 48);
 
   chrome.action.setIcon({ imageData }, () => {
@@ -209,6 +210,11 @@ async function initVariables() {
   await chrome.storage.sync.get(["REFRESH_RUN"]).then(({ REFRESH_RUN }) => {
     set_REFRESH_RUN(REFRESH_RUN || false);
   });
+  await chrome.storage.sync
+    .get(["REFRESH_PERIOD"])
+    .then(({ REFRESH_PERIOD }) => {
+      set_REFRESH_PERIOD(REFRESH_PERIOD || 1);
+    });
   await chrome.storage.sync
     .get(["REFRESH_SITE_URL"])
     .then(({ REFRESH_SITE_URL }) => {

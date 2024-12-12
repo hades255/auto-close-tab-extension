@@ -50,17 +50,11 @@ document.getElementById("runButton").addEventListener("click", () => {
       if (response.RUN) {
         document.getElementById("title").innerText = "WORKING";
         document.getElementById("runButton").innerText = "Stop";
-        document.getElementById("url").disabled = true;
-        document.getElementById("time").disabled = true;
-        document.getElementById("closeButton").disabled = true;
-        document.getElementById("openButton").disabled = true;
-      } else {
-        stopDisplay();
-        document.getElementById("url").disabled = false;
-        document.getElementById("time").disabled = false;
-        document.getElementById("closeButton").disabled = false;
-        document.getElementById("openButton").disabled = false;
-      }
+      } else stopDisplay();
+      document.getElementById("url").disabled = response.RUN;
+      document.getElementById("time").disabled = response.RUN;
+      document.getElementById("closeButton").disabled = response.RUN;
+      document.getElementById("openButton").disabled = response.RUN;
     }
   });
 });
@@ -76,13 +70,10 @@ document.getElementById("refreshRun").addEventListener("click", () => {
           document.getElementById("refreshRun").innerText = response.REFRESH_RUN
             ? "STOP"
             : "RUN";
-          if (response.REFRESH_RUN) {
-            document.getElementById("refreshSiteUrl").disabled = true;
-            document.getElementById("refreshPeriod").disabled = true;
-          } else {
-            document.getElementById("refreshSiteUrl").disabled = false;
-            document.getElementById("refreshPeriod").disabled = false;
-          }
+          document.getElementById("refreshSiteUrl").disabled =
+            response.REFRESH_RUN;
+          document.getElementById("refreshPeriod").disabled =
+            response.REFRESH_RUN;
         }
       }
     );
